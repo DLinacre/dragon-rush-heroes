@@ -16,9 +16,9 @@ jobs:
         node: ['18', '20', '22']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
 
@@ -44,8 +44,8 @@ jobs:
     name: Browser end-to-end
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: '20'
 
@@ -60,10 +60,20 @@ jobs:
           "
           node tests/e2e.js
 
+      # `.shots/` is gitignored, and upload-artifact skips ignored paths unless
+      # hidden/ignored files are explicitly included. Copy to a clean directory
+      # so the screenshots are always published as a build artifact.
+      - name: Collect screenshots
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp -v .shots/*.png artifacts/ 2>/dev/null || echo "no screenshots produced"
+          ls -la artifacts/
+
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: e2e-screenshots
-          path: .shots/
-          if-no-files-found: ignore
+          path: artifacts/
+          if-no-files-found: warn
