@@ -193,13 +193,28 @@ Full detail in [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## Testing
 
-**111 automated checks.**
+**137 automated checks**, all passing locally.
+
+```
+node tests/run.js     →  86/86   unit + integration   (~2 s)
+node tests/smoke.js   →  25/25   deployment health    (~1 s)
+node tests/e2e.js     →  26/26   browser end-to-end   (~30 s, real Chrome)
+```
+
+> **Note on the CI badge:** `.github/workflows/ci.yml` is valid and runs the
+> same three suites across Node 18/20/22. On this account GitHub-hosted
+> runners are not currently being allocated (every job completes in ~8s with
+> no runner assigned and zero steps executed), so Actions reports a failure
+> that is unrelated to the code. Enable Actions minutes on the account, or run
+> the commands above locally, to reproduce the passing result.
+
 
 | Suite | Count | Covers |
 |---|---|---|
 | Unit | 56 | Crypto, validation, store transactions, combat invariants, content generation, economy maths |
 | Integration | 30 | Real HTTP: auth, CSRF, rate limits, economy accuracy, traversal, ownership |
-| E2E | 25 | Real Chrome: full journey, portrait rendering, complete battle, mobile layout, zero console errors |
+| Smoke | 25 | Health, security headers, catalogue integrity, free-forever charter |
+| E2E | 26 | Real Chrome: full journey, portrait rendering, complete battle, mobile layout, zero console errors |
 
 Bugs these caught during development: a combat deadlock state, two CSP
 violations, an empty battle stage, a blown-out screen flash, and a PostgreSQL
@@ -231,4 +246,4 @@ rule that silently broke GDPR account deletion.
 | Story stages | 48 |
 | Image assets | **0** (procedural) |
 | API endpoints | 26 |
-| Automated checks | **111** |
+| Automated checks | **137** |
