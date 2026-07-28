@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/DLinacre/dragonball-heroes/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/DLinacre/dragonball-heroes/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="tests" src="https://img.shields.io/badge/tests-137%20passing-3ddc84?style=flat-square">
   <img alt="dependencies" src="https://img.shields.io/badge/runtime%20deps-0-a855f7?style=flat-square">
   <img alt="fighters" src="https://img.shields.io/badge/fighters-464-f59e0b?style=flat-square">
@@ -201,12 +202,8 @@ node tests/smoke.js   →  25/25   deployment health    (~1 s)
 node tests/e2e.js     →  26/26   browser end-to-end   (~30 s, real Chrome)
 ```
 
-> **Note on the CI badge:** `.github/workflows/ci.yml` is valid and runs the
-> same three suites across Node 18/20/22. On this account GitHub-hosted
-> runners are not currently being allocated (every job completes in ~8s with
-> no runner assigned and zero steps executed), so Actions reports a failure
-> that is unrelated to the code. Enable Actions minutes on the account, or run
-> the commands above locally, to reproduce the passing result.
+Continuous integration runs the same three suites across Node 18, 20 and 22
+on every push — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 
 | Suite | Count | Covers |
