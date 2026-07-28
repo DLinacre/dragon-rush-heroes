@@ -26,7 +26,7 @@
  * Two teams of three. One active fighter per side. A shared "timer count"
  * advances as actions are taken and drives regeneration, buff expiry and
  * ability triggers. Arts cards are drawn into a 4-card hand; playing them
- * costs Ki. Filling all seven Dragon Ball slots unlocks the Rising Rush.
+ * costs Ki. Filling all seven Rush Orb slots unlocks the Rising Rush.
  */
 
 const { FairRandom } = require('../core/crypto');
@@ -41,7 +41,7 @@ const KI_PER_COUNT = 8;
 const VANISH_COST = 50;          // vanishing gauge units
 const VANISH_MAX = 100;
 const VANISH_REGEN = 12;         // per timer count
-const DRAGON_BALLS_TO_RUSH = 7;
+const RUSH_ORBS_REQUIRED = 7;
 const SUBSTITUTION_START = 4;    // counts before a cover-change is available
 const COMBO_WINDOW = 3;          // cards chainable in one combo string
 const CRIT_MULTIPLIER = 1.65;
@@ -467,13 +467,13 @@ function advanceCounts(state, counts, events) {
   events.push({ type: 'tick', count: state.count });
 }
 
-/** Award a Dragon Ball, unlocking Rising Rush at seven. */
-function grantDragonBall(state, side, events) {
+/** Award a Rush Orb, unlocking Rising Rush at seven. */
+function grantDragonRush(state, side, events) {
   const team = state[side];
-  if (team.dragonBalls >= DRAGON_BALLS_TO_RUSH) return;
-  team.dragonBalls += 1;
-  events.push({ type: 'dragon_ball', side, total: team.dragonBalls });
-  if (team.dragonBalls === DRAGON_BALLS_TO_RUSH) {
+  if (team.rushOrbs >= RUSH_ORBS_REQUIRED) return;
+  team.rushOrbs += 1;
+  events.push({ type: 'rush_orb', side, total: team.rushOrbs });
+  if (team.rushOrbs === RUSH_ORBS_REQUIRED) {
     events.push({ type: 'rising_rush_ready', side });
   }
 }
@@ -509,13 +509,13 @@ function createBattle({ playerTeam, roster, enemyTeam, enemyLevel, seed, mode = 
       members: playerTeam.map((id) => makeCombatant(id, roster?.get(id) ?? null)),
       active: 0,
       hand: [],
-      dragonBalls: 0,
+      rushOrbs: 0,
     },
     enemy: {
       members: enemyTeam.map((id) => makeCombatant(id, null, enemyLevel)),
       active: 0,
       hand: [],
-      dragonBalls: 0,
+      rushOrbs: 0,
     },
     events: [],
   };
@@ -600,9 +600,9 @@ function playCard(state, side, cardUid) {
     if (defender.alive) fireAbilities(state, foeSide, 'onHit', events);
   }
 
-  // Dragon Ball economy: Special and Ultimate cards fill slots faster.
+  // Rush Orb economy: Special and Ultimate cards fill slots faster.
   const balls = card.arts === 'ULTIMATE' ? 2 : card.arts === 'SPECIAL' ? 1 : state.rng.next() > 0.45 ? 1 : 0;
-  for (let i = 0; i < balls; i += 1) grantDragonBall(state, side, events);
+  for (let i = 0; i < balls; i += 1) grantDragonRush(state, side, events);
 
   // Combo chaining.
   if (COMBOABLE.has(card.arts) && state.comboIndex < COMBO_WINDOW - 1) {
@@ -672,18 +672,18 @@ function switchFighter(state, side, slot) {
 }
 
 /**
- * Rising Rush — the signature team attack. Consumes all seven Dragon Balls
+ * Rising Rush — the signature team attack. Consumes all seven Rush Orbs
  * and strikes with the whole team.
  */
 function risingRush(state, side) {
   const events = [];
   const team = state[side];
-  if (team.dragonBalls < DRAGON_BALLS_TO_RUSH) throw new Error('RISING_RUSH_NOT_READY');
+  if (team.rushOrbs < RUSH_ORBS_REQUIRED) throw new Error('RISING_RUSH_NOT_READY');
 
   const foeSide = side === 'player' ? 'enemy' : 'player';
   const attacker = activeOf(state, side);
   const defender = activeOf(state, foeSide);
-  team.dragonBalls = 0;
+  team.rushOrbs = 0;
 
   events.push({
     type: 'rising_rush',
@@ -728,7 +728,7 @@ function charge(state, side) {
   if (!combatant?.alive) throw new Error('NO_ACTIVE_FIGHTER');
 
   // Charging is deliberately generous but costs tempo: the opponent also
-  // gains counts, and a charging fighter builds no Dragon Balls.
+  // gains counts, and a charging fighter builds no Rush Orbs.
   const before = combatant.ki;
   combatant.ki = Math.min(MAX_KI, combatant.ki + 25);
   combatant.vanish = Math.min(VANISH_MAX, combatant.vanish + 25);
@@ -802,7 +802,7 @@ function enemyTurn(state) {
   const smart = state.rng.next() < skill;
 
   // 1. Rising Rush when available and it would be decisive.
-  if (state.enemy.dragonBalls >= DRAGON_BALLS_TO_RUSH && smart) {
+  if (state.enemy.rushOrbs >= RUSH_ORBS_REQUIRED && smart) {
     try { return risingRush(state, 'enemy'); } catch { /* fall through */ }
   }
 
@@ -880,15 +880,15 @@ function serialiseBattle(state) {
       members: state.player.members.map(serialiseCombatant),
       active: state.player.active,
       hand: state.player.hand,
-      dragonBalls: state.player.dragonBalls,
-      risingRushReady: state.player.dragonBalls >= DRAGON_BALLS_TO_RUSH,
+      rushOrbs: state.player.rushOrbs,
+      risingRushReady: state.player.rushOrbs >= RUSH_ORBS_REQUIRED,
     },
     enemy: {
       members: state.enemy.members.map(serialiseCombatant),
       active: state.enemy.active,
       handCount: state.enemy.hand.length,
-      dragonBalls: state.enemy.dragonBalls,
-      risingRushReady: state.enemy.dragonBalls >= DRAGON_BALLS_TO_RUSH,
+      rushOrbs: state.enemy.rushOrbs,
+      risingRushReady: state.enemy.rushOrbs >= RUSH_ORBS_REQUIRED,
     },
   };
 }
@@ -919,13 +919,13 @@ function snapshotBattle(state) {
       members: state.player.members.map(strip),
       active: state.player.active,
       hand: state.player.hand,
-      dragonBalls: state.player.dragonBalls,
+      rushOrbs: state.player.rushOrbs,
     },
     enemy: {
       members: state.enemy.members.map(strip),
       active: state.enemy.active,
       hand: state.enemy.hand,
-      dragonBalls: state.enemy.dragonBalls,
+      rushOrbs: state.enemy.rushOrbs,
     },
   };
 }
@@ -978,13 +978,13 @@ function restoreBattle(snapshot) {
       members: snapshot.player.members.map(hydrate),
       active: snapshot.player.active,
       hand: snapshot.player.hand,
-      dragonBalls: snapshot.player.dragonBalls,
+      rushOrbs: snapshot.player.rushOrbs,
     },
     enemy: {
       members: snapshot.enemy.members.map(hydrate),
       active: snapshot.enemy.active,
       hand: snapshot.enemy.hand,
-      dragonBalls: snapshot.enemy.dragonBalls,
+      rushOrbs: snapshot.enemy.rushOrbs,
     },
     events: [],
   };
@@ -1008,7 +1008,7 @@ module.exports = {
   activeOf,
   teamDefeated,
   constants: {
-    HAND_SIZE, MAX_KI, VANISH_COST, VANISH_MAX, DRAGON_BALLS_TO_RUSH,
+    HAND_SIZE, MAX_KI, VANISH_COST, VANISH_MAX, RUSH_ORBS_REQUIRED,
     SUBSTITUTION_START, COMBO_WINDOW, CRIT_MULTIPLIER, RISING_RUSH_POWER,
   },
 };

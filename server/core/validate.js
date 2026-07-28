@@ -66,7 +66,7 @@ const rules = {
   password() {
     const COMMON = new Set([
       'password', 'password1', 'password123', '1234567890', 'qwertyuiop',
-      'letmein123', 'iloveyou1', 'dragonball', 'superman1', 'welcome123',
+      'letmein123', 'iloveyou1', 'dragonrush', 'superman1', 'welcome123',
       'admin12345', 'football12', 'baseball12', 'sunshine12', 'princess12',
     ]);
     return (raw) => {

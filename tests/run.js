@@ -550,14 +550,14 @@ describe('domain/combat', () => {
     assert.throws(() => combat.vanish(s, 'player'), /VANISH_NOT_READY/);
   });
 
-  it('rising rush requires all seven dragon balls', () => {
+  it('rising rush requires all seven rush orbs', () => {
     const s = newBattle();
-    s.player.dragonBalls = 3;
+    s.player.rushOrbs = 3;
     assert.throws(() => combat.risingRush(s, 'player'), /RISING_RUSH_NOT_READY/);
-    s.player.dragonBalls = 7;
+    s.player.rushOrbs = 7;
     const events = combat.risingRush(s, 'player');
     assert.ok(events.some((e) => e.type === 'rising_rush'));
-    assert.equal(s.player.dragonBalls, 0, 'balls must be consumed');
+    assert.equal(s.player.rushOrbs, 0, 'balls must be consumed');
   });
 
   it('switching is blocked while the substitution counter is up', () => {
@@ -623,7 +623,7 @@ describe('domain/combat', () => {
         const a = combat.activeOf(s, 'player');
         const card = s.player.hand.find((c) => a.ki >= c.cost);
         try {
-          if (s.player.dragonBalls >= 7) combat.risingRush(s, 'player');
+          if (s.player.rushOrbs >= 7) combat.risingRush(s, 'player');
           else if (card) combat.playCard(s, 'player', card.uid);
           else combat.charge(s, 'player');
         } catch { combat.charge(s, 'player'); }
@@ -684,7 +684,7 @@ describe('http integration', () => {
           headers: {
             ...(payload ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } : {}),
             ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-            ...(jar.dbh_csrf ? { 'X-CSRF-Token': jar.dbh_csrf } : {}),
+            ...(jar.drh_csrf ? { 'X-CSRF-Token': jar.drh_csrf } : {}),
             ...extraHeaders,
           },
         },
@@ -758,8 +758,8 @@ describe('http integration', () => {
     assert.equal(res.status, 201);
     assert.equal(res.body.data.player.crystals, 25000);
     assert.equal(res.body.data.player.pass.active, true);
-    assert.ok(jar.dbh_session, 'session cookie must be set');
-    assert.ok(jar.dbh_csrf, 'csrf cookie must be set');
+    assert.ok(jar.drh_session, 'session cookie must be set');
+    assert.ok(jar.drh_csrf, 'csrf cookie must be set');
   });
 
   it('never returns a password hash', async () => {
@@ -778,10 +778,10 @@ describe('http integration', () => {
   });
 
   it('rejects a mutating request without a CSRF token', async () => {
-    const saved = jar.dbh_csrf;
-    delete jar.dbh_csrf;
+    const saved = jar.drh_csrf;
+    delete jar.drh_csrf;
     const res = await call('POST', '/api/summon', { bannerId: 'legendary-rising', count: 1 });
-    jar.dbh_csrf = saved;
+    jar.drh_csrf = saved;
     assert.equal(res.status, 403);
     assert.equal(res.body.error.code, 'CSRF_REJECTED');
   });
@@ -915,7 +915,7 @@ describe('http integration', () => {
       email: 'bye@test.com', password: 'goodbyePass1234', displayName: 'Bye',
     });
     assert.equal(reg.status, 201, JSON.stringify(reg.body));
-    assert.ok(jar.dbh_session, 'session cookie set on register');
+    assert.ok(jar.drh_session, 'session cookie set on register');
     const out = await call('POST', '/api/auth/logout');
     assert.equal(out.status, 200);
     const check = await call('GET', '/api/auth/session');

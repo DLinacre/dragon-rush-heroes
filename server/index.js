@@ -83,7 +83,7 @@ async function main() {
     server.listen(config.server.port, config.server.host, resolve);
   });
 
-  logger.info('Dragon Ball Heroes is airborne', {
+  logger.info('Dragon Rush Heroes is airborne', {
     url: `http://${config.server.host === '0.0.0.0' ? 'localhost' : config.server.host}:${config.server.port}`,
     env: config.env,
     pid: process.pid,

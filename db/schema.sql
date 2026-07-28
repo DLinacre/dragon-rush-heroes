@@ -1,5 +1,5 @@
 -- ============================================================================
--- Dragon Ball Heroes — PostgreSQL schema
+-- Dragon Rush Heroes — PostgreSQL schema
 -- ============================================================================
 --
 -- The shipped build uses an embedded WAL document store (server/data/store.js)

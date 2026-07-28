@@ -60,7 +60,7 @@ final 464 with a correct pyramid (30/39/26/4.5/1.1 %) and 12 Light / 26 Dark.
 | 2.9 | Damage formula (soft-opposed + element + buffs + combo + crit) | — |
 | 2.10 | Vanishing Step, cover change, substitution | — |
 | 2.11 | Unique Gauge, Main Ability, Endurance | — |
-| 2.12 | Dragon Balls → Rising Rush | 7 slots |
+| 2.12 | Rush Orbs → Rising Rush | 7 slots |
 | 2.13 | Skill-scaled AI | Decision quality scales with level |
 | 2.14 | Event-sourced timeline output | 16 event types |
 | 2.15 | Snapshot/restore | Survives process restart |

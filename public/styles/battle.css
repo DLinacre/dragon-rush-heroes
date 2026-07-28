@@ -145,9 +145,9 @@
 }
 .pip.down { background: var(--ink-dim); box-shadow: none; opacity: .45; }
 
-/* Dragon Ball tracker */
-.dballs { display: flex; gap: 4px; justify-content: center; padding: 2px 0; }
-.dball {
+/* Rush Orb tracker */
+.orbs { display: flex; gap: 4px; justify-content: center; padding: 2px 0; }
+.orb {
   width: 17px; height: 17px;
   border-radius: 50%;
   background: var(--bg-raised);
@@ -155,13 +155,13 @@
   position: relative;
   transition: transform var(--t-mid) var(--e-spring), background var(--t-mid);
 }
-.dball.lit {
+.orb.lit {
   background: radial-gradient(circle at 35% 30%, #fff4c9, var(--gold) 45%, var(--orange));
   border-color: var(--gold-hot);
   box-shadow: 0 0 12px rgba(255,180,40,.75);
   transform: scale(1.14);
 }
-.dball.just-lit { animation: ballPop .5s var(--e-spring); }
+.orb.just-lit { animation: ballPop .5s var(--e-spring); }
 @keyframes ballPop {
   0% { transform: scale(1); }
   45% { transform: scale(1.55); }

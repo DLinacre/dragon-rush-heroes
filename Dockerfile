@@ -1,4 +1,4 @@
-# Dragon Ball Heroes — production image.
+# Dragon Rush Heroes — production image.
 #
 # The application has zero runtime dependencies, so there is no install step:
 # the image is the Node runtime plus source. That keeps it small, makes cold

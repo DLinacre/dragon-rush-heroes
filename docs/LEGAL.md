@@ -6,7 +6,7 @@
 
 ## 1. What this project is
 
-Dragon Ball Heroes is an **original anime-styled action RPG**. It implements
+Dragon Rush Heroes is an **original anime-styled action RPG**. It implements
 the *systems* common to the collectible card-battler genre — an element wheel,
 Arts-card combat, gacha summoning with pity, star-based limit breaking — using
 an entirely original cast, original move names and artwork generated
@@ -81,23 +81,37 @@ presented as being connected to any commercial product.
 
 ---
 
-## 5. The product name
+## 5. The product name — resolved
 
-The working title **"Dragon Ball Heroes"** was supplied in the brief.
-"Dragon Ball" is a registered trademark of its rights holders, and there is an
-existing arcade title using a very similar name.
+The project was originally drafted under a working title that incorporated the
+registered trademark "Dragon Ball". **That has been removed.** The product is
+now **Dragon Rush Heroes**.
 
-> ### ⚠️ Action required before any public release
-> **Rename the product.** The name is the single largest remaining legal risk
-> in this repository, and — unlike the code — it is not something an original
-> implementation can cure. Using it publicly would invite a trademark claim
-> even though the game contains none of the rights holder's content.
->
-> Suitable original alternatives: *Ascendant Legends*, *Nova Arts*,
-> *Origin Rush*, *Spirit Vanguard*.
->
-> The name appears in: `package.json`, `public/index.html` (`<title>`, meta),
-> `public/app/main.js` (brand text), and the documentation headers.
+### What changed
+
+| Was | Now | Why |
+|---|---|---|
+| "Dragon Ball Heroes" (product name) | **Dragon Rush Heroes** | Removes the registered mark |
+| "Dragon Balls" (the seven collectible orbs) | **Rush Orbs** | The named orb-collection mechanic is strongly associated with the mark |
+| `dbh_session` / `dbh_csrf` cookies | `drh_session` / `drh_csrf` | Consistency |
+| `DRAGON_BALLS_TO_RUSH` constant | `RUSH_ORBS_REQUIRED` | Consistency |
+| npm package `dragonball-heroes` | `dragon-rush-heroes` | Consistency |
+
+"Dragon" is a generic English word in very wide use across game titles and is
+not exclusive to any franchise; "Rush" is likewise generic. The combination
+"Dragon Rush Heroes" does not reproduce a registered mark, and a search
+returned no conflicting project under that name.
+
+### Verification
+
+A repository-wide scan confirms **zero** occurrences of the previous mark in
+any source file, stylesheet, template, test, manifest or document. The only
+remaining references are in this file, which exists to record the change.
+
+> **Residual note.** No trademark position is ever absolute. If you intend to
+> publish commercially at scale, have a solicitor run a formal clearance search
+> in your target jurisdictions. This rename removes the obvious, high-risk
+> conflict; it is not a substitute for professional clearance.
 
 ---
 
@@ -146,15 +160,19 @@ naming the actual operator. None are bundled, because they would be false.
 ## 9. Summary for a publisher
 
 ✅ **Safe:** all code, all game systems, all 464 characters, all artwork, the
-entire economy.
+entire economy — **and the product name**, following the §5 rename.
 
-⚠️ **Change first:** the product name.
-
-⚠️ **Consider changing:** the genre-standard rarity and mechanic labels listed
-in §4, if commercial publication is intended.
+⚠️ **Consider changing:** the genre-standard rarity labels listed in §4
+("Sparking", "Extreme", "Legends Limited", "Ultra", "Z-Power", "Zeni",
+"Chrono Crystals"), if commercial publication is intended. These are
+descriptive mechanical labels defined as data in `server/domain/content.js`
+and `server/domain/economy.js`, so renaming any of them is a single-file
+change.
 
 📋 **Add before launch:** your own privacy policy and terms of service; TLS
-termination; off-host backups.
+termination; off-host backups; and a formal trademark clearance search if
+publishing commercially.
+
 
 ---
 

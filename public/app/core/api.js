@@ -37,7 +37,7 @@ async function request(path, { method = 'GET', body, signal } = {}) {
   const headers = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (UNSAFE.has(method)) {
-    const token = cookie('dbh_csrf');
+    const token = cookie('drh_csrf');
     if (token) headers['X-CSRF-Token'] = token;
   }
 

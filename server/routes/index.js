@@ -142,7 +142,7 @@ function registerRoutes(app, { authService, gameService, repos }) {
 
   /** GDPR data portability. */
   app.get('/api/player/export', requireAuth, (req, res) => {
-    res.header('Content-Disposition', 'attachment; filename="dragonball-heroes-export.json"');
+    res.header('Content-Disposition', 'attachment; filename="dragon-rush-heroes-export.json"');
     ok(res, gameService.exportData(req.user.id));
   });
 

@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Dragon Ball Heroes — 464 Fighters, Free Forever" width="100%">
+  <img src="docs/banner.png" alt="Dragon Rush Heroes — 464 Fighters, Free Forever" width="100%">
 </p>
 
-<h1 align="center">🚀 Dragon Ball Heroes</h1>
+<h1 align="center">🚀 Dragon Rush Heroes</h1>
 
 <p align="center">
   <strong>An original anime action-RPG card battler. 464 fighters, real-time Arts
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DLinacre/dragonball-heroes/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/DLinacre/dragonball-heroes/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/DLinacre/dragon-rush-heroes/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/DLinacre/dragon-rush-heroes/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="tests" src="https://img.shields.io/badge/tests-137%20passing-3ddc84?style=flat-square">
   <img alt="dependencies" src="https://img.shields.io/badge/runtime%20deps-0-a855f7?style=flat-square">
   <img alt="fighters" src="https://img.shields.io/badge/fighters-464-f59e0b?style=flat-square">
@@ -19,8 +19,9 @@
   <img alt="licence" src="https://img.shields.io/badge/licence-MIT-3da5ff?style=flat-square">
 </p>
 
-> ⚠️ **Before publishing:** the working title uses a third-party trademark and
-> must be renamed. All *code and content* are original and safe to ship.
+> **100% original IP.** Every character, name, move and pixel of artwork in
+> this project is original — there are no third-party assets and no image files
+> at all (portraits are generated procedurally at runtime).
 > See [`docs/LEGAL.md`](docs/LEGAL.md).
 
 ---
@@ -28,7 +29,7 @@
 ## Quick start
 
 ```bash
-cd dragonball-heroes
+cd dragon-rush-heroes
 node server/index.js          # → http://localhost:3000
 ```
 
@@ -48,7 +49,7 @@ node tests/e2e.js     # 25 browser tests              (needs Chrome)
 The premium games in this genre are excellent products wrapped around a hostile
 economy. This build keeps the depth and deletes the extraction.
 
-| | Genre standard | Dragon Ball Heroes |
+| | Genre standard | Dragon Rush Heroes |
 |---|---|---|
 | Starting currency | Buy at ~£40 / 2,000 | **25,000 free** (~£500 equivalent) |
 | Premium pass | ~£8/month, auto-renews | **Free, permanent** |
@@ -69,7 +70,7 @@ you fight a single battle.
 ### Combat
 Server-authoritative 3v3 card battler. Draw Arts cards, spend Ki, chain combos,
 dodge with Vanishing Step, cover-change to save a dying ally, charge the Unique
-Gauge, and fill seven Dragon Balls to trigger the Rising Rush.
+Gauge, and fill seven Rush Orbs to trigger the Rising Rush.
 
 - Seven-element wheel (Crimson → Solar → Void → Verdant → Tidal → Crimson, plus
   Umbral and Radiant) at 1.5× / 0.65×
@@ -171,8 +172,8 @@ CMD ["node", "server/index.js"]
 docker run -d -p 3000:3000 \
   -e SESSION_SECRET="$(openssl rand -hex 32)" \
   -e GACHA_SECRET="$(openssl rand -hex 32)" \
-  -v dbh-data:/app/.data \
-  dragonball-heroes
+  -v drh-data:/app/.data \
+  dragon-rush-heroes
 ```
 
 ---

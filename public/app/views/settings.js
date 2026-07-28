@@ -245,7 +245,7 @@ export function renderSettings(host, navigate, onSignOut) {
             const data = await api.exportData();
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            const anchor = el('a', { href: url, download: 'dragonball-heroes-export.json' });
+            const anchor = el('a', { href: url, download: 'dragon-rush-heroes-export.json' });
             document.body.append(anchor);
             anchor.click();
             anchor.remove();
@@ -282,7 +282,7 @@ export function renderSettings(host, navigate, onSignOut) {
   const aboutPanel = el('div.panel', {}, [
     el('h3.h3', { text: 'About', style: { marginBottom: '10px' } }),
     el('p.tiny', {
-      text: 'Dragon Ball Heroes is an original anime action-RPG. All 464 fighters, ' +
+      text: 'Dragon Rush Heroes is an original anime action-RPG. All 464 fighters, ' +
             'their names, moves and artwork are original works created for this project ' +
             'and generated procedurally at runtime. It is not affiliated with, endorsed ' +
             'by, or derived from any commercial franchise.',

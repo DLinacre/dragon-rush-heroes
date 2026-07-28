@@ -538,7 +538,7 @@ class GameService {
           FIGHTER_DEFEATED: ['FIGHTER_DEFEATED', 'That fighter has been defeated.'],
           ALREADY_ACTIVE: ['ALREADY_ACTIVE', 'That fighter is already on the battlefield.'],
           SUBSTITUTION_ON_COOLDOWN: ['SUB_COOLDOWN', 'Cover change is still on cooldown.'],
-          RISING_RUSH_NOT_READY: ['RUSH_NOT_READY', 'You need all seven Dragon Balls.'],
+          RISING_RUSH_NOT_READY: ['RUSH_NOT_READY', 'You need all seven Rush Orbs.'],
           MAIN_ABILITY_USED: ['ABILITY_USED', 'Main Ability has already been used.'],
           MAIN_ABILITY_NOT_READY: ['ABILITY_NOT_READY', 'Main Ability is not available yet.'],
           NO_ACTIVE_FIGHTER: ['NO_ACTIVE_FIGHTER', 'You have no fighter on the battlefield.'],
@@ -610,7 +610,7 @@ class GameService {
         doc.clearedStages[stage.id] = new Date().toISOString();
         doc.counters.stagesCleared = Object.keys(doc.clearedStages).length;
       }
-      const rushed = state.player.dragonBalls === 0 && state.count > 0;
+      const rushed = state.player.rushOrbs === 0 && state.count > 0;
       if (rushed) doc.counters.risingRush += 0; // counted at rush time
       return doc;
     });

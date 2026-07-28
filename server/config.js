@@ -65,7 +65,7 @@ function secret(key, devSeed) {
     process.emitWarning(`${key} is shorter than 32 chars; padding for development only.`);
   }
   // Deterministic per-machine dev secret: stable across restarts, useless in prod.
-  return crypto.createHash('sha256').update(`dbh-dev::${devSeed}::${raw ?? ''}`).digest('hex');
+  return crypto.createHash('sha256').update(`drh-dev::${devSeed}::${raw ?? ''}`).digest('hex');
 }
 
 const ROOT = path.resolve(__dirname, '..');
@@ -103,8 +103,8 @@ const config = Object.freeze({
       maxFailedLogins: int('MAX_FAILED_LOGINS', 8, { min: 3 }),
       lockoutMs: int('LOCKOUT_MS', 15 * 60 * 1000, { min: 1000 }),
     }),
-    cookieName: 'dbh_session',
-    csrfCookieName: 'dbh_csrf',
+    cookieName: 'drh_session',
+    csrfCookieName: 'drh_csrf',
     // Comma-separated allow-list. Empty => same-origin only (no CORS headers).
     corsOrigins: Object.freeze(
       str('CORS_ORIGINS', '')

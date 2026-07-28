@@ -25,8 +25,8 @@ A successful `register` or `login` sets two cookies:
 
 | Cookie | Flags | Purpose |
 |---|---|---|
-| `dbh_session` | `HttpOnly; SameSite=Lax; Secure*` | Opaque bearer token |
-| `dbh_csrf` | `SameSite=Lax; Secure*` (readable) | Double-submit CSRF value |
+| `drh_session` | `HttpOnly; SameSite=Lax; Secure*` | Opaque bearer token |
+| `drh_csrf` | `SameSite=Lax; Secure*` (readable) | Double-submit CSRF value |
 
 <sub>*`Secure` is set automatically in production.</sub>
 
@@ -114,7 +114,7 @@ All static game data. Cache for 10 minutes; changes only on deploy.
                   "pitySparking": 10, "pityLegends": 80,
                   "freeForever": true, "monetisation": "none",
                   "passIncluded": true, "staminaUnlimited": true },
-    "combat":   { "HAND_SIZE": 4, "MAX_KI": 100, "DRAGON_BALLS_TO_RUSH": 7 } } }
+    "combat":   { "HAND_SIZE": 4, "MAX_KI": 100, "RUSH_ORBS_REQUIRED": 7 } } }
 ```
 
 ### `GET /api/fairness`
@@ -265,7 +265,7 @@ Response:
                           "moveName":"Blazing Vortex Zero","vfx":"VORTEX","comboIndex":0 },
                         { "type":"damage","amount":4247,"critical":true,"element":"advantage",
                           "hpBefore":11575,"hpAfter":7328,"maxHp":11575 },
-                        { "type":"dragon_ball","side":"player","total":3 },
+                        { "type":"rush_orb","side":"player","total":3 },
                         { "type":"ko","side":"enemy","fighterId":"…" },
                         { "type":"battle_end","winner":"player","counts":18 } ],
             "rewards": { "won":true,"crystals":110,"zeni":1560,"souls":64,
@@ -273,7 +273,7 @@ Response:
 ```
 
 **Event types:** `battle_start`, `card_play`, `damage`, `ability`, `gauge_full`,
-`main_ability`, `vanish`, `charge`, `switch`, `dragon_ball`,
+`main_ability`, `vanish`, `charge`, `switch`, `rush_orb`,
 `rising_rush_ready`, `rising_rush`, `endurance`, `ko`, `tick`, `battle_end`.
 
 The client treats `events` as an animation script and `state` as the truth to
@@ -336,7 +336,7 @@ visibly land rather than snapping.
 │   ├── .speedlines
 │   └── .stage                    sprites, damage numbers, banners, procs
 ├── .arena-flash                  impact flash (capped at 0.38 opacity)
-├── .hud                          portraits, HP/Ki gauges, team pips, dragon balls
+├── .hud                          portraits, HP/Ki gauges, team pips, rush orbs
 ├── .arena-mid                    in-flow spacer + ground plane
 └── .dock                         actions, 4-card hand, bench
 ```

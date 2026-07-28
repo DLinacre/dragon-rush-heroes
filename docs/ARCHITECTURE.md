@@ -1,4 +1,4 @@
-# System Architecture — Dragon Ball Heroes
+# System Architecture — Dragon Rush Heroes
 
 **Style:** Modular monolith · **Runtime:** Node.js ≥ 18 · **Dependencies:** zero
 
@@ -94,7 +94,7 @@ engine testable without a server and portable to a future PvP worker.
 ## 3. Canonical folder tree
 
 ```
-dragonball-heroes/
+dragon-rush-heroes/
 ├── package.json                  # zero deps; start/test/verify scripts
 ├── README.md
 │

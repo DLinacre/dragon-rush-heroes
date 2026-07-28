@@ -1,4 +1,4 @@
-# Product Requirements Document — Dragon Ball Heroes
+# Product Requirements Document — Dragon Rush Heroes
 
 **Version:** 1.0 · **Status:** Implemented · **Platform:** Responsive web app (mobile-first)
 
@@ -13,7 +13,7 @@ monetisation removed entirely**.
 The commercial games in this category are excellent products wrapped around a
 hostile economy: energy meters that stop play, paid subscriptions for basic
 quality-of-life, and premium currency at roughly **£40 per 2,000 units** where a
-single ten-pull costs 1,000. Dragon Ball Heroes keeps everything that makes the
+single ten-pull costs 1,000. Dragon Rush Heroes keeps everything that makes the
 genre compelling and deletes everything that makes it exploitative.
 
 ### The one-sentence pitch
@@ -25,7 +25,7 @@ genre compelling and deletes everything that makes it exploitative.
 
 ## 2. Positioning against the category leader
 
-| Dimension | Genre standard | Dragon Ball Heroes |
+| Dimension | Genre standard | Dragon Rush Heroes |
 |---|---|---|
 | Premium currency | ~£40 → 2,000 crystals | **25,000 free on signup** (~£500 equivalent) |
 | Premium subscription | ~£8/month, auto-renews | **Free, permanent, never renews** |
@@ -127,7 +127,7 @@ Roster (search / filter / sort across 464 fighters)
 Choose chapter → choose stage → confirm team
   → Arena: draw 4 Arts cards, spend Ki, chain combos
   → Vanish to evade · cover-change to survive · charge to recover
-  → Fill 7 Dragon Balls → Rising Rush cut-in
+  → Fill 7 Rush Orbs → Rising Rush cut-in
   → Victory: crystals, Zeni, Souls, XP, first-clear bonus
 ```
 **Requirements**
@@ -192,7 +192,7 @@ Settings → motion/accessibility toggles (immediate effect)
 | 4.5 | Vanishing Step, cover change, substitution counters | ✅ |
 | 4.6 | Unique Gauge charging and full-gauge effects | ✅ |
 | 4.7 | Main Ability gated on elapsed timer counts | ✅ |
-| 4.8 | Rising Rush at seven Dragon Balls | ✅ |
+| 4.8 | Rising Rush at seven Rush Orbs | ✅ |
 | 4.9 | Endurance ("survive lethal once") | ✅ |
 | 4.10 | Data-driven abilities firing on nine trigger types | ✅ |
 | 4.11 | Server-authoritative; client sends intents only | ✅ |

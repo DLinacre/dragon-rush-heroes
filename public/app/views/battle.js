@@ -370,7 +370,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
 
   const playerUI = combatantBlock('player');
   const enemyUI = combatantBlock('enemy');
-  const dballRow = el('div.dballs');
+  const orbRow = el('div.orbs');
 
   const exitBtn = el('button.icon-btn', {
     'aria-label': 'Forfeit and leave',
@@ -396,7 +396,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
       exitBtn,
     ]),
     el('div.hud-row.enemy', {}, [enemyUI.block]),
-    dballRow,
+    orbRow,
     el('div.hud-row', {}, [playerUI.block])
   );
 
@@ -462,9 +462,9 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
     paintSide(playerUI, 'player', pa, p);
     paintSide(enemyUI, 'enemy', ea, e);
 
-    // Dragon Balls.
-    mount(dballRow, ...Array.from({ length: 7 }, (_, i) =>
-      el('span.dball', { class: i < p.dragonBalls ? 'lit' : '' })
+    // Rush Orbs.
+    mount(orbRow, ...Array.from({ length: 7 }, (_, i) =>
+      el('span.orb', { class: i < p.rushOrbs ? 'lit' : '' })
     ));
 
     // Actions.
@@ -501,7 +501,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
         onClick: () => act({ action: 'rising_rush' }),
       }, [
         el('span', { text: 'Rising Rush' }),
-        el('span.sub', { text: `${p.dragonBalls}/7` }),
+        el('span.sub', { text: `${p.rushOrbs}/7` }),
       ])
     );
 
@@ -726,8 +726,8 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
           await sleep(210);
           break;
         }
-        case 'dragon_ball': {
-          const balls = dballRow.children;
+        case 'rush_orb': {
+          const balls = orbRow.children;
           const node = balls[event.total - 1];
           if (node) { node.classList.add('lit', 'just-lit'); setTimeout(() => node.classList.remove('just-lit'), 520); }
           await sleep(60);

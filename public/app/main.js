@@ -47,7 +47,7 @@ const soulPill = el('div.coin', { title: 'Souls' }, [
 const header = el('header.hdr', {}, [
   el('div.brand', {}, [
     el('span.brand-orb'),
-    el('span.brand-text', { text: 'DB Heroes' }),
+    el('span.brand-text', { text: 'DR Heroes' }),
   ]),
   el('div.wallet', {}, [crystalPill, zeniPill, soulPill]),
 ]);
