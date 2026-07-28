@@ -1,0 +1,20 @@
+{
+  "name": "Dragon Rush Heroes",
+  "short_name": "DR Heroes",
+  "description": "An original anime action-RPG card battler. 464 fighters, real-time Arts combat, provably-fair summons. Free forever.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05060d",
+  "theme_color": "#05060d",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

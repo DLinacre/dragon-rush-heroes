@@ -1,0 +1,12 @@
+# Dragon Rush Heroes — robots.txt
+# The app is a single-page game; everything is publicly crawlable.
+
+User-agent: *
+Allow: /
+
+# The demo API shim and raw catalogue payload carry no SEO value and would
+# waste crawl budget on a 700 KB JSON file.
+Disallow: /data/
+Disallow: /demo-api.js
+
+Sitemap: https://dlinacre.github.io/dragon-rush-heroes/sitemap.xml

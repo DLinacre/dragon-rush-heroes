@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Dragon Rush Heroes — 464 Fighters, Free Forever" width="100%">
+  <img src="docs/banner.webp" alt="Dragon Rush Heroes — 464 Fighters, Free Forever" width="100%">
 </p>
 
 <h1 align="center">🚀 Dragon Rush Heroes</h1>
@@ -17,6 +17,14 @@
   <img alt="monetisation" src="https://img.shields.io/badge/monetisation-none-3ddc84?style=flat-square">
   <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A518-339933?style=flat-square">
   <img alt="licence" src="https://img.shields.io/badge/licence-MIT-3da5ff?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="https://dlinacre.github.io/dragon-rush-heroes/"><strong>▶ Play the demo in your browser</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#quick-start">Run it locally</a>
+  &nbsp;·&nbsp;
+  <a href="docs/PRD.md">Read the PRD</a>
 </p>
 
 > **100% original IP.** Every character, name, move and pixel of artwork in
@@ -100,11 +108,11 @@ Every portrait is drawn on a `<canvas>` from a seed. The repository contains
 
 | Summon reveal | Battle arena |
 |---|---|
-| ![Summon](docs/screenshots/summon-reveal.png) | ![Combat](docs/screenshots/combat.png) |
+| ![Summon](docs/screenshots/summon-reveal.webp) | ![Combat](docs/screenshots/combat.webp) |
 
 | Dashboard | Roster |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Roster](docs/screenshots/roster.png) |
+| ![Dashboard](docs/screenshots/dashboard.webp) | ![Roster](docs/screenshots/roster.webp) |
 
 ---
 

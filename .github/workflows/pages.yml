@@ -1,0 +1,63 @@
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege token: only what Pages deployment needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deployments at once; cancel superseded runs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build static demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      # Zero runtime dependencies — nothing to install.
+      - name: Build demo
+        run: node tools/build-demo.js
+
+      - name: Verify build output
+        run: |
+          test -f demo/index.html
+          test -f demo/data/catalogue.json
+          test -f demo/demo-api.js
+          test -f demo/manifest.webmanifest
+          test -f demo/robots.txt
+          test -f demo/sitemap.xml
+          echo "demo size: $(du -sh demo | cut -f1)"
+          node -e "
+            const c = require('./demo/data/catalogue.json');
+            if (c.fighters.length < 400) { console.error('roster too small'); process.exit(1); }
+            console.log('fighters bundled:', c.fighters.length);
+          "
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: demo
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -9,10 +9,33 @@
   <title>Dragon Rush Heroes — Free Anime Action RPG</title>
   <meta name="description" content="An original anime action-RPG card battler. 464 fighters, real-time Arts combat, provably-fair summons. 100% free forever — no purchases, no ads, no energy gates.">
 
+  <link rel="canonical" href="https://dlinacre.github.io/dragon-rush-heroes/">
+
   <!-- Open Graph -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Dragon Rush Heroes">
+  <meta property="og:url" content="https://dlinacre.github.io/dragon-rush-heroes/">
   <meta property="og:title" content="Dragon Rush Heroes — Free Anime Action RPG">
-  <meta property="og:description" content="464 fighters. Real-time Arts combat. Provably-fair summons. Free forever.">
+  <meta property="og:description" content="464 fighters. Real-time Arts combat. Provably-fair summons. Free forever — no purchases, no ads, no energy gates.">
+  <meta property="og:image" content="https://dlinacre.github.io/dragon-rush-heroes/og-image.png">
+  <meta property="og:image:width" content="1456">
+  <meta property="og:image:height" content="720">
+  <meta property="og:image:alt" content="Dragon Rush Heroes key art: two energy-wreathed warriors face off beneath seven glowing orbs.">
+  <meta property="og:locale" content="en_GB">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dragon Rush Heroes — Free Anime Action RPG">
+  <meta name="twitter:description" content="464 fighters. Real-time Arts combat. Provably-fair summons. Free forever.">
+  <meta name="twitter:image" content="https://dlinacre.github.io/dragon-rush-heroes/og-image.png">
+  <meta name="twitter:image:alt" content="Dragon Rush Heroes key art.">
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DR Heroes">
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23ffb020'/><circle cx='11' cy='11' r='4' fill='%23fff6d0' opacity='.7'/><text x='16' y='22' font-size='15' text-anchor='middle' fill='%23a8320a'>★</text></svg>">
 
@@ -30,6 +53,58 @@
 
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/battle.css">
+
+  <!--
+    Structured data. VideoGame is the correct type for a playable browser game
+    and is what enables rich results for genre, price and platform. The
+    explicit £0.00 Offer is the machine-readable statement of the
+    free-forever promise.
+  -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "VideoGame",
+        "@id": "https://dlinacre.github.io/dragon-rush-heroes/#game",
+        "name": "Dragon Rush Heroes",
+        "url": "https://dlinacre.github.io/dragon-rush-heroes/",
+        "description": "An original anime action-RPG card battler with 464 collectible fighters, real-time Arts-card combat, an elemental advantage wheel and provably-fair summoning. Free forever with no purchases, no advertising and no energy gates.",
+        "image": "https://dlinacre.github.io/dragon-rush-heroes/og-image.png",
+        "inLanguage": "en-GB",
+        "genre": ["Role-playing game", "Card battle game", "Action game"],
+        "gamePlatform": ["Web browser", "PC", "Mobile"],
+        "applicationCategory": "Game",
+        "operatingSystem": "Any (modern web browser)",
+        "playMode": "SinglePlayer",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0.00",
+          "priceCurrency": "GBP",
+          "availability": "https://schema.org/InStock"
+        },
+        "author": { "@type": "Person", "name": "DLinacre" },
+        "publisher": { "@id": "https://dlinacre.github.io/dragon-rush-heroes/#publisher" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://dlinacre.github.io/dragon-rush-heroes/#website",
+        "url": "https://dlinacre.github.io/dragon-rush-heroes/",
+        "name": "Dragon Rush Heroes",
+        "inLanguage": "en-GB",
+        "publisher": { "@id": "https://dlinacre.github.io/dragon-rush-heroes/#publisher" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://dlinacre.github.io/dragon-rush-heroes/#publisher",
+        "name": "Dragon Rush Heroes",
+        "url": "https://dlinacre.github.io/dragon-rush-heroes/",
+        "logo": "https://dlinacre.github.io/dragon-rush-heroes/icon.svg"
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <!--

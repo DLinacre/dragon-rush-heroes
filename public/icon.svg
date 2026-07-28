@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dragon Rush Heroes">
+  <defs>
+    <radialGradient id="orb" cx="36%" cy="30%">
+      <stop offset="0%" stop-color="#fff6d0"/>
+      <stop offset="42%" stop-color="#ffc531"/>
+      <stop offset="100%" stop-color="#ff6a1f"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="#05060d"/>
+  <circle cx="256" cy="256" r="150" fill="url(#orb)"/>
+  <text x="256" y="318" font-size="170" text-anchor="middle" fill="#a8320a"
+        font-family="system-ui, sans-serif" font-weight="700">★</text>
+</svg>
