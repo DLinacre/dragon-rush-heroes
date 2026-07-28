@@ -8,6 +8,7 @@
 
 import { el, mount, toast, num } from '../core/ui.js';
 import { api, ApiError } from '../core/api.js';
+import { track, trackOnce, EVENTS } from '../core/analytics.js';
 
 /**
  * @param {HTMLElement} host
@@ -54,6 +55,8 @@ export function renderAuth(host, onAuthenticated) {
             })
           : await api.login({ email: data.email, password: data.password });
 
+        trackOnce(mode === 'register' ? EVENTS.REGISTER : EVENTS.LOGIN);
+        track(mode === 'register' ? EVENTS.REGISTER : EVENTS.LOGIN);
         toast(
           mode === 'register'
             ? `Welcome, ${payload.player.displayName}! 25,000 Chrono Crystals deposited.`
@@ -172,14 +175,85 @@ export function renderAuth(host, onAuthenticated) {
     ]),
   ]);
 
+  /**
+   * CRO-2 — "Play instantly".
+   *
+   * The demo previously demanded name + email + password before showing any
+   * gameplay, despite storing everything locally, so the credentials served no
+   * functional purpose. A signup wall in front of a *demo* is the highest
+   * friction placement possible. Guests now play in one click and are offered
+   * an account only after they have a reason to want one.
+   */
+  const guestBtn = el('button.btn.btn-primary.btn-block.btn-lg', {
+    type: 'button',
+    'aria-describedby': 'guest-note',
+    onClick: async () => {
+      if (busy) return;
+      busy = true;
+      guestBtn.disabled = true;
+      guestBtn.textContent = 'Starting…';
+      track(EVENTS.GUEST_START);
+      try {
+        // A guest is a normal account with a generated identity; nothing in
+        // the game behaves differently, so there is no second code path.
+        const suffix = Math.random().toString(36).slice(2, 8);
+        const payload = await api.register({
+          email: `guest_${suffix}@local.play`,
+          password: `guest-${suffix}-${Date.now().toString(36)}`,
+          displayName: `Fighter${suffix.slice(0, 4).toUpperCase()}`,
+        });
+        toast(`Welcome! 25,000 Chrono Crystals deposited.`, 'gold', 4200);
+        onAuthenticated(payload);
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : 'Could not start. Please try again.');
+        busy = false;
+        guestBtn.disabled = false;
+        guestBtn.textContent = '▶ Play instantly';
+      }
+    },
+  }, ['▶ Play instantly']);
+
+  const divider = el('div', {
+    role: 'separator',
+    'aria-label': 'or',
+    style: {
+      display: 'flex', alignItems: 'center', gap: '10px',
+      margin: '18px 0 14px', color: 'var(--ink-dim)', fontSize: '11px',
+      textTransform: 'uppercase', letterSpacing: '.08em',
+    },
+  }, [
+    el('span', { style: { flex: '1', height: '1px', background: 'var(--line)' } }),
+    el('span', { text: 'or' }),
+    el('span', { style: { flex: '1', height: '1px', background: 'var(--line)' } }),
+  ]);
+
+  // The account form starts collapsed so the primary action stands alone.
+  const formWrap = el('div', { style: { display: 'none' } }, [form, el('div', { style: { height: '10px' } }), toggleLink]);
+
+  const showFormBtn = el('button.btn.btn-ghost.btn-block', {
+    type: 'button',
+    text: 'Create an account to sync progress',
+    onClick: () => {
+      formWrap.style.display = '';
+      showFormBtn.style.display = 'none';
+      formWrap.querySelector('input')?.focus();
+    },
+  });
+
   const card = el('div.panel', {
     style: { flex: '0 1 400px', minWidth: '0', alignSelf: 'flex-start' },
   }, [
     headline,
-    el('p.muted', { text: 'Free account. No card. No ads.', style: { marginBottom: '22px' } }),
-    form,
-    el('div', { style: { height: '10px' } }),
-    toggleLink,
+    el('p.muted', { text: 'No signup needed. No card. No ads.', style: { marginBottom: '20px' } }),
+    guestBtn,
+    el('p.tiny', {
+      id: 'guest-note',
+      text: 'Your progress saves to this browser.',
+      style: { textAlign: 'center', marginTop: '8px' },
+    }),
+    divider,
+    showFormBtn,
+    formWrap,
   ]);
 
   const layout = el('div', {

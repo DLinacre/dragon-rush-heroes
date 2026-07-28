@@ -10,6 +10,8 @@
  */
 
 /** Error carrying the server's machine-readable code and details. */
+import { ignoreExpected } from './errors.js';
+
 export class ApiError extends Error {
   constructor(status, code, message, details) {
     super(message);
@@ -60,7 +62,8 @@ async function request(path, { method = 'GET', body, signal } = {}) {
   let payload = null;
   const text = await response.text();
   if (text) {
-    try { payload = JSON.parse(text); } catch { /* non-JSON body */ }
+    try { payload = JSON.parse(text); }
+    catch { ignoreExpected('response body is legitimately not JSON'); }
   }
 
   if (!response.ok) {

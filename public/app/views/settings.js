@@ -6,7 +6,7 @@
  */
 
 import { el, mount, num, toast, confirmDialog, modal } from '../core/ui.js';
-import { store, applyPlayerState } from '../core/store.js';
+import { store } from '../core/store.js';
 import { api, ApiError } from '../core/api.js';
 
 /** Labelled toggle switch. */
@@ -72,6 +72,9 @@ export function renderSettings(host, navigate, onSignOut) {
         profile.settings.damageNumbers, (v) => saveSettings({ damageNumbers: v })),
       toggle('Sound effects', 'Battle and UI audio.',
         profile.settings.soundEnabled, (v) => saveSettings({ soundEnabled: v })),
+      toggle('Untimed mode',
+        'Combat waits for you to confirm each step instead of advancing on a timer.',
+        profile.settings.untimedMode, (v) => saveSettings({ untimedMode: v })),
     ]),
   ]);
 
@@ -279,6 +282,28 @@ export function renderSettings(host, navigate, onSignOut) {
   ]);
 
   // ----------------------------------------------------------------- about --
+  // Audit finding C-3/S-3: the app stored player data with no disclosure.
+  const privacyPanel = el('div.panel', {}, [
+    el('h3.h3', { text: 'Privacy', style: { marginBottom: '10px' } }),
+    el('p.tiny', {
+      text: 'This game collects the minimum possible. There is no tracking, ' +
+            'no advertising, no third-party scripts and nothing is sold or shared.',
+      style: { marginBottom: '10px' },
+    }),
+    el('div', { style: { display: 'grid', gap: '5px' } }, [
+      el('div.row', {}, [el('span.tiny', { text: 'What is stored' }), el('div.spacer'),
+        el('span.tiny', { text: 'Email, display name, game progress', style: { color: 'var(--ink-soft)' } })]),
+      el('div.row', {}, [el('span.tiny', { text: 'Cookies' }), el('div.spacer'),
+        el('span.tiny', { text: 'Session only — no tracking cookies', style: { color: 'var(--jade)' } })]),
+      el('div.row', {}, [el('span.tiny', { text: 'Third-party scripts' }), el('div.spacer'),
+        el('span.tiny', { text: 'None', style: { color: 'var(--jade)' } })]),
+      el('div.row', {}, [el('span.tiny', { text: 'Analytics' }), el('div.spacer'),
+        el('span.tiny', { text: 'Anonymous counts only, no identifiers', style: { color: 'var(--jade)' } })]),
+      el('div.row', {}, [el('span.tiny', { text: 'Your rights' }), el('div.spacer'),
+        el('span.tiny', { text: 'Export or erase any time, below', style: { color: 'var(--ink-soft)' } })]),
+    ]),
+  ]);
+
   const aboutPanel = el('div.panel', {}, [
     el('h3.h3', { text: 'About', style: { marginBottom: '10px' } }),
     el('p.tiny', {
@@ -315,6 +340,6 @@ export function renderSettings(host, navigate, onSignOut) {
         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
         alignItems: 'start',
       },
-    }, [gameplayPanel, profilePanel, fairnessPanel, ledgerPanel, dataPanel, aboutPanel]),
+    }, [gameplayPanel, profilePanel, privacyPanel, fairnessPanel, ledgerPanel, dataPanel, aboutPanel]),
   ]));
 }

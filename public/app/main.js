@@ -8,9 +8,11 @@
  *   - animate currency changes so rewards feel tangible.
  */
 
-import { el, mount, num, compact, icon, toast } from './core/ui.js';
+import { el, mount, compact, icon, toast } from './core/ui.js';
 import { store, indexCatalogue, applyPlayerState } from './core/store.js';
 import { api } from './core/api.js';
+import { installGlobalErrorHandlers, reportQuiet, setErrorTelemetry } from './core/errors.js';
+import { track, trackReturnVisit, EVENTS } from './core/analytics.js';
 import { renderAuth } from './views/auth.js';
 import { renderHome } from './views/home.js';
 import { renderSummon } from './views/summon.js';
@@ -202,6 +204,13 @@ async function enterApp() {
 /* -------------------------------------------------------------------- boot */
 
 async function boot() {
+  // Catch anything that escapes a local handler so failures are never silent.
+  installGlobalErrorHandlers(toast);
+  // Route recorded client errors into the same analytics channel.
+  setErrorTelemetry((entry) => track('client_error', { category: entry.category }));
+  track(EVENTS.DEMO_START);
+  trackReturnVisit();
+
   mount(root, el('div.backdrop'), el('div.center-load', {}, [
     el('div.spinner'),
     el('p.muted', { text: 'Powering up…' }),
@@ -217,6 +226,9 @@ async function boot() {
       showAuth();
     }
   } catch (err) {
+    // Session probe failed (offline, server down). Fall back to the auth
+    // screen — the player can still read the value proposition.
+    reportQuiet(err, 'session probe on boot', 'network');
     store.set({ phase: 'auth' });
     showAuth();
     toast('Could not reach the server. Some features may not work.', 'err', 5000);

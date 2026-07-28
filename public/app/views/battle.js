@@ -16,11 +16,13 @@
  * a sequence plays, then unlocked when the timeline drains.
  */
 
-import { el, mount, num, compact, toast, sleep, confirmDialog } from '../core/ui.js';
+import { el, mount, num, compact, toast, sleep, confirmDialog, ELEMENT_GLYPH } from '../core/ui.js';
 import { store, applyPlayerState } from '../core/store.js';
 import { lazyPortrait, renderPortrait } from '../core/portrait.js';
 import { VFXEngine } from '../core/vfx.js';
 import { api, ApiError } from '../core/api.js';
+import { reportQuiet, ignoreExpected } from '../core/errors.js';
+import { track, trackOnce, EVENTS } from '../core/analytics.js';
 
 /**
  * Normalised stage anchor points.
@@ -60,7 +62,10 @@ export function renderBattle(host, navigate) {
       try {
         const payload = await api.getBattle(activeId);
         openArena(payload.battleId, payload.stage, payload.state, [], navigate);
-      } catch {
+      } catch (err) {
+        // The stored battle id is stale (expired, forfeited elsewhere).
+        // Expected after a server restart — clear it and re-render.
+        ignoreExpected('stale activeBattleId; falling back to stage select');
         store.set({ activeBattleId: null });
         renderBattle(host, navigate);
       }
@@ -139,6 +144,27 @@ export function renderBattle(host, navigate) {
           el('span.tiny', { text: `💎 ${stage.rewards.crystals}` }),
           el('span.tiny', { text: `⬢ ${num(stage.rewards.zeni)}` }),
         ]),
+        // UX-2: surface the enemy elements at the point of decision. Teams
+        // were previously assembled blind, which made the element wheel —
+        // the core strategic system — pure guesswork.
+        el('div.row', {
+          style: { marginTop: '6px', gap: '6px', alignItems: 'center' },
+          'aria-label': 'Enemy elements: ' + stage.enemyTeam
+            .map((id) => catalogue.elements[catalogue.byId.get(id)?.element]?.label)
+            .filter(Boolean).join(', '),
+        }, [
+          el('span.tiny', { text: 'Enemy:', style: { color: 'var(--ink-dim)' } }),
+          ...stage.enemyTeam.map((id) => {
+            const def = catalogue.byId.get(id);
+            if (!def) return null;
+            const c = catalogue.elements[def.element].hex;
+            return el('span.el-glyph', {
+              text: ELEMENT_GLYPH[def.element] ?? '',
+              style: { color: c, fontSize: '12px' },
+              'aria-hidden': 'true',
+            });
+          }),
+        ]),
       ]);
     }));
 
@@ -205,6 +231,7 @@ export function renderBattle(host, navigate) {
       const members = team.filter(Boolean);
       if (members.length === 0) { toast('Pick at least one fighter.', 'err'); return; }
       try {
+        trackOnce(EVENTS.FIRST_BATTLE);
         const payload = await api.startBattle(stage.id, members);
         store.set({ activeBattleId: payload.battleId });
         openArena(payload.battleId, payload.stage, payload.state, payload.events, navigate);
@@ -397,7 +424,11 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
         danger: true,
       });
       if (!confirmed) return;
-      try { await api.forfeit(battleId); } catch { /* ignore */ }
+      // Forfeit is best-effort: the player is leaving either way, but we
+      // still record the failure so a broken endpoint is visible.
+      track(EVENTS.BATTLE_FORFEIT, { stage: stage?.id ?? 'unknown' });
+      try { await api.forfeit(battleId); }
+      catch (err) { reportQuiet(err, 'forfeit battle', 'api'); }
       store.set({ activeBattleId: null });
       close();
     },
@@ -438,9 +469,11 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
         portraits[side].fighterId = active.fighterId;
         const art = renderPortrait(def.art, 130);
         const ctx = ui.canvasEl.getContext('2d');
-        ui.canvasEl.width = art.width;
-        ui.canvasEl.height = art.height;
-        ctx.drawImage(art, 0, 0);
+        if (ctx) {
+          ui.canvasEl.width = art.width;
+          ui.canvasEl.height = art.height;
+          ctx.drawImage(art, 0, 0);
+        }
       }
 
       // Keep the large stage sprite in sync with the active fighter.
@@ -449,15 +482,25 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
         sprite.fighterId = active.fighterId;
         const big = renderPortrait(def.art, 320);
         const sctx = sprite.canvas.getContext('2d');
-        sprite.canvas.width = big.width;
-        sprite.canvas.height = big.height;
-        sctx.drawImage(big, 0, 0);
+        if (sctx) {
+          sprite.canvas.width = big.width;
+          sprite.canvas.height = big.height;
+          sctx.drawImage(big, 0, 0);
+        }
         sprite.node.classList.remove('downed');
       }
       sprite?.node.classList.toggle('downed', !active.alive);
 
       mount(ui.nameEl,
-        el('span.el-dot', { style: { background: colour, color: colour } }),
+        el('span.el-dot', {
+          style: { background: colour, color: colour, width: '9px', height: '9px' },
+          'aria-hidden': 'true',
+        }),
+        el('span.el-glyph', {
+          text: ELEMENT_GLYPH[active.element] ?? '',
+          style: { color: colour, fontSize: '10px' },
+          'aria-label': `${catalogue.elements[active.element].label} element`,
+        }),
         el('span', { text: active.name }),
         el('span.tiny.mono', { text: `Lv${active.level}`, style: { opacity: '.6' } })
       );
@@ -653,6 +696,36 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
    * Walk the event timeline, animating each beat.
    * Input stays locked for the duration.
    */
+  /**
+   * WCAG 2.2.1 Timing Adjustable.
+   *
+   * Combat normally advances on fixed timers. In untimed mode each beat waits
+   * for an explicit confirmation instead, so players who need more time are
+   * never rushed. Returns immediately when the mode is off.
+   */
+  function waitForAdvance(ms) {
+    if (!settings.untimedMode) return sleep(ms);
+    return new Promise((resolve) => {
+      const done = () => {
+        document.removeEventListener('keydown', onKey);
+        root.removeEventListener('click', onClick);
+        hint.remove();
+        resolve();
+      };
+      const onKey = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); done(); }
+      };
+      const onClick = () => done();
+      const hint = el('div.proc', {
+        text: 'Press Enter or tap to continue',
+        style: { top: '50%', zIndex: '60', animation: 'none', opacity: '1' },
+      });
+      stageLayer.append(hint);
+      document.addEventListener('keydown', onKey);
+      root.addEventListener('click', onClick);
+    });
+  }
+
   async function playEvents(events) {
     for (const event of events) {
       if (closed) return;
@@ -682,7 +755,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
             shake: profileVfx.shake * (event.arts === 'ULTIMATE' ? 1.4 : 0.75),
             flash: event.arts === 'ULTIMATE' ? profileVfx.flash : profileVfx.flash * 0.4,
           });
-          await sleep(event.arts === 'ULTIMATE' ? 250 : 120);
+          await waitForAdvance(event.arts === 'ULTIMATE' ? 250 : 120);
           break;
         }
         case 'damage': {
@@ -702,7 +775,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
             ui.hpBar.className = `bar-fill bar-hp${pct < 25 ? ' crit' : pct < 50 ? ' low' : ''}`;
             ui.hpNum.textContent = `${num(event.hpAfter)}/${num(event.maxHp)}`;
           }
-          await sleep(140);
+          await waitForAdvance(140);
           break;
         }
         case 'ability': {
@@ -721,7 +794,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
           moveBanner(event.name);
           spriteAnim(event.side, 'charging', 1200);
           vfx.emit('spiral', { to: anchorPoint(event.side), hue: 150, particles: 180, flash: 0.4, shake: 10 });
-          await sleep(430);
+          await waitForAdvance(430);
           break;
         }
         case 'vanish': {
@@ -773,7 +846,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
           ui.portrait.style.filter = 'grayscale(1) brightness(.5)';
           vfx.emit('eruption', { to: anchorPoint(event.side), hue: 10, particles: 200, shake: 18, flash: 0.6 });
           setTimeout(() => { ui.portrait.style.filter = ''; }, 700);
-          await sleep(400);
+          await waitForAdvance(400);
           break;
         }
         case 'switch': {
@@ -813,7 +886,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
         try {
           const fresh = await api.getBattle(battleId);
           state = fresh.state;
-        } catch { /* ignore */ }
+        } catch (err) { reportQuiet(err, 're-sync battle state', 'api'); }
       } else {
         toast('Connection problem.', 'err');
       }
@@ -825,6 +898,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
 
   /** Victory / defeat overlay with reward breakdown. */
   async function showResult(rewards, won) {
+    track(EVENTS.BATTLE_COMPLETE, { won: Boolean(won), stage: stage?.id ?? 'unknown' });
     store.set({ activeBattleId: null });
 
     if (won) {
@@ -875,7 +949,8 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
     root.remove();
     document.removeEventListener('keydown', onKey);
     // Refresh the player so currencies and missions are current.
-    try { applyPlayerState(await api.player()); } catch { /* non-fatal */ }
+    try { applyPlayerState(await api.player()); }
+    catch (err) { reportQuiet(err, 'refresh player after battle', 'api'); }
     navigate('battle');
   }
 

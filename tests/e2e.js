@@ -94,8 +94,22 @@ async function main() {
     check('free pass advertised', /Legends Pass/i.test(heroText));
     await page.screenshot({ path: path.join(SHOTS, '01-landing.png') });
 
+    // ------------------------------------------------- 2a. guest fast path --
+    // CRO-2 made "Play instantly" the primary action. Verify it works before
+    // testing the (now secondary) account flow.
+    console.log('\n2a. Guest fast path');
+    const guestBtn = await page.$('button[aria-describedby="guest-note"]');
+    check('play-instantly button present', Boolean(guestBtn));
+
     // --------------------------------------------------------- 2. register --
     console.log('\n2. Registration');
+    // The account form is collapsed behind a disclosure button now.
+    await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('button')]
+        .find((b) => /create an account/i.test(b.innerText));
+      btn?.click();
+    });
+    await page.waitForSelector('input[name="displayName"]', { visible: true, timeout: 8000 });
     const email = `e2e${Date.now()}@test.dev`;
     await page.type('input[name="displayName"]', 'Solvane');
     await page.type('input[name="email"]', email);
@@ -299,6 +313,25 @@ async function main() {
     );
     check('no horizontal overflow on mobile', overflow <= 1, `${overflow}px`);
     await page.screenshot({ path: path.join(SHOTS, '12-mobile.png') });
+
+    // ------------------------------------------------- 7b. guest journey ----
+    // Exercise the CRO-2 fast path end to end in a clean context, proving a
+    // visitor can reach gameplay in one click with no credentials.
+    console.log('\n7b. Guest one-click journey');
+    const ctx = await browser.createBrowserContext();
+    const gp = await ctx.newPage();
+    await gp.setViewport({ width: 1280, height: 900 });
+    await gp.goto(BASE, { waitUntil: 'networkidle2', timeout: 30000 });
+    await gp.waitForSelector('button[aria-describedby="guest-note"]', { timeout: 10000 });
+    await gp.click('button[aria-describedby="guest-note"]');
+    const reachedGame = await gp
+      .waitForFunction(() => document.querySelector('.nav-btn') && /account level/i.test(document.body.innerText),
+        { timeout: 20000 })
+      .then(() => true).catch(() => false);
+    check('guest reaches the game in one click', reachedGame);
+    const guestGrant = await gp.evaluate(() => /25(\.0)?K|25,000/.test(document.body.innerText));
+    check('guest receives the founder grant', guestGrant);
+    await ctx.close();
 
     // ------------------------------------------------------- 8. diagnostics --
     console.log('\n8. Runtime diagnostics');

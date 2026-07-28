@@ -6,8 +6,8 @@
  * layout work local.
  */
 
-import { el, mount, num, compact, stars, bar, toast, modal, debounce } from '../core/ui.js';
-import { store, applyPlayerState } from '../core/store.js';
+import { el, mount, num, stars, bar, toast, modal, debounce, ELEMENT_GLYPH } from '../core/ui.js';
+import { store } from '../core/store.js';
 import { lazyPortrait, renderPortrait } from '../core/portrait.js';
 import { api } from '../core/api.js';
 
@@ -31,7 +31,19 @@ function fighterCard(entry, onClick, { selected = false, dim = false } = {}) {
     el('div.fcard-art', {}, [
       canvas,
       el(`div.fcard-rarity.r-${entry.rarity}`),
-      el('div.fcard-el', { style: { background: elementColour, color: elementColour } }),
+      // Colour + glyph: readable without colour perception (WCAG 1.4.1).
+      el('div.fcard-el', {
+        style: { background: elementColour, color: elementColour },
+        'aria-hidden': 'true',
+      }, [
+        el('span', {
+          text: ELEMENT_GLYPH[entry.element] ?? '',
+          style: {
+            fontSize: '10px', lineHeight: '16px', display: 'block',
+            textAlign: 'center', color: '#0b0d16', fontWeight: '800',
+          },
+        }),
+      ]),
     ]),
     el('div.fcard-body', {}, [
       el('div.fcard-name', { text: entry.title, title: entry.title }),

@@ -1,0 +1,63 @@
+{
+  "//": [
+    "TYPE-CHECK-ONLY configuration.",
+    "",
+    "This project ships plain JavaScript with zero runtime dependencies and no",
+    "build step. TypeScript is used as a *checker*, not a compiler: `checkJs`",
+    "validates the shipped .js sources against types/domain.d.ts, and `noEmit`",
+    "guarantees nothing is ever written to disk. The result is compile-time",
+    "safety at literally zero runtime cost and zero bundle impact.",
+    "",
+    "STRICTNESS RATIONALE",
+    "  Enabled  - strictNullChecks, noUnusedLocals, noImplicitReturns and",
+    "             noFallthroughCasesInSwitch. These find real defects:",
+    "             unguarded null access, dead code, missing return paths.",
+    "  Disabled - noImplicitAny and noUnusedParameters. In a callback-heavy",
+    "             codebase these demand an annotation on every internal closure",
+    "             while finding no bugs. Every module boundary is fully typed",
+    "             in types/domain.d.ts, which is where mismatches actually",
+    "             cause failures.",
+    "",
+    "  npm run typecheck   ->  tsc --noEmit"
+  ],
+
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "useUnknownInCatchVariables": false,
+    "alwaysStrict": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+
+  "include": [
+    "server/**/*.js",
+    "public/app/**/*.js",
+    "tools/**/*.js",
+    "types/**/*.d.ts"
+  ],
+
+  "exclude": ["node_modules", "demo", ".data", ".data-*", "tests/**/*.js"]
+}

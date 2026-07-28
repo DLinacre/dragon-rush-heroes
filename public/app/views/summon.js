@@ -9,6 +9,8 @@
 import { el, mount, num, toast, sleep, bar } from '../core/ui.js';
 import { store, applyPlayerState } from '../core/store.js';
 import { api, ApiError } from '../core/api.js';
+import { reportQuiet } from '../core/errors.js';
+import { track, trackOnce, EVENTS } from '../core/analytics.js';
 import { renderPortrait } from '../core/portrait.js';
 import { VFXEngine } from '../core/vfx.js';
 
@@ -277,14 +279,21 @@ export function renderSummon(host, navigate) {
       single.disabled = true;
       multi.disabled = true;
       try {
+        trackOnce(EVENTS.FIRST_SUMMON);
+        track(count === 1 ? EVENTS.SUMMON_SINGLE : EVENTS.SUMMON_MULTI, { banner: selected.id });
         const result = await api.summon(selected.id, count);
+        // Rarity distribution is the single most useful economy signal.
+        const best = result.results.reduce(
+          (top, r) => (RARITY_ORDER[r.rarity] > RARITY_ORDER[top] ? r.rarity : top), 'HERO');
+        if (RARITY_ORDER[best] >= 4) track(EVENTS.RARE_PULL, { rarity: best });
         store.set({
           profile: { ...store.get('profile'), crystals: result.crystals, pity: result.pity },
           roster: result.roster,
         });
         await playReveal(result.results);
         // Refresh derived data (missions may have advanced).
-        try { applyPlayerState(await api.player()); } catch { /* non-fatal */ }
+        try { applyPlayerState(await api.player()); }
+        catch (err) { reportQuiet(err, 'refresh player after summon', 'api'); }
         draw();
       } catch (err) {
         toast(err instanceof ApiError ? err.message : 'Summon failed.', 'err');

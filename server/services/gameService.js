@@ -206,7 +206,7 @@ class GameService {
       }
 
       const balanceAfter = player.crystals - cost;
-      const updatedPlayer = this.repos.updatePlayer(playerId, (doc) => {
+      this.repos.updatePlayer(playerId, (doc) => {
         doc.crystals = balanceAfter;
         doc.pity = summonResult.pity;
         doc.summonNonce += 1;
@@ -267,6 +267,10 @@ class GameService {
       if (!entry) throw notFound('You do not own that fighter.');
 
       const def = CATALOGUE.byId.get(entry.fighterId);
+      // A roster row can outlive its catalogue entry if a lineage is ever
+      // retired. Without this guard the lookup returns undefined and the
+      // whole request 500s, locking the player out of their account.
+      if (!def) throw notFound('That fighter is no longer available.');
       const maxLevel = economy.maxLevelForStars(entry.stars);
       if (entry.level >= maxLevel) {
         throw unprocessable(
@@ -333,6 +337,7 @@ class GameService {
       if (!entry) throw notFound('You do not own that fighter.');
 
       const def = CATALOGUE.byId.get(entry.fighterId);
+      if (!def) throw notFound('That fighter is no longer available.');
       const boosts = { ...(entry.soulBoosts ?? {}) };
       const cap = 20 + entry.stars * 5;
 
@@ -713,6 +718,8 @@ class GameService {
       screenShake: rules.bool({ optional: true }),
       damageNumbers: rules.bool({ optional: true }),
       autoAdvance: rules.bool({ optional: true }),
+      // WCAG 2.2.1 Timing Adjustable — combat waits for confirmation.
+      untimedMode: rules.bool({ optional: true }),
       soundEnabled: rules.bool({ optional: true }),
       theme: rules.enum(['nebula', 'inferno', 'glacier', 'void'], { optional: true }),
     });

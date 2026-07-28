@@ -28,7 +28,6 @@ const { FairRandom, serverSeedHash, shortId } = require('../core/crypto');
 const {
   CATALOGUE, RARITIES, STAR_THRESHOLDS, BANNERS, MISSIONS,
 } = require('./content');
-const config = require('../config');
 
 // -------------------------------------------------------- economy constants --
 
@@ -336,6 +335,7 @@ function createPlayerDocument({ userId, displayName }) {
       damageNumbers: true,
       autoAdvance: false,
       soundEnabled: true,
+      untimedMode: false,
       theme: 'nebula',
     },
     createdAt: now,

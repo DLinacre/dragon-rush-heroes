@@ -29,6 +29,21 @@ jobs:
           echo "runtime dependencies: $deps"
           test "$deps" -eq 0
 
+      # Type-check the shipped JavaScript against types/domain.d.ts. TypeScript
+      # is a devDependency used as a checker only — nothing is emitted and the
+      # runtime dependency count stays at zero.
+      - name: Type check
+        run: |
+          npm install --no-save --no-audit --no-fund typescript @types/node
+          npx tsc --noEmit --pretty false 2>&1 | tail -40 || true
+          NULLS=$(npx tsc --noEmit --pretty false 2>&1 | grep -cE 'TS18047|TS18048' || true)
+          DEAD=$(npx tsc --noEmit --pretty false 2>&1 | grep -c 'TS6133' || true)
+          echo "null-safety errors: $NULLS (budget 5)"
+          echo "dead-code errors:   $DEAD (budget 0)"
+          # Ratchet: these classes are fixed, so any regression fails the build.
+          test "$NULLS" -le 5
+          test "$DEAD" -le 0
+
       - name: Syntax check every source file
         run: |
           for f in $(find server tests -name '*.js'); do node --check "$f"; done

@@ -75,10 +75,12 @@ export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 // ------------------------------------------------------------------ toasts --
 
+/** @type {HTMLElement | null} */
 let toastHost = null;
 
+/** Lazily create the toast container. Always returns a live element. */
 function ensureToastHost() {
-  if (!toastHost) {
+  if (!toastHost || !toastHost.isConnected) {
     toastHost = el('div.toasts', { role: 'status', 'aria-live': 'polite' });
     document.body.append(toastHost);
   }
@@ -243,3 +245,49 @@ export function debounce(fn, ms = 180) {
 
 /** Promise-based delay. */
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * ============================================================================
+ * ELEMENT GLYPHS  (WCAG 1.4.1 — Use of Colour)
+ * ============================================================================
+ *
+ * The seven-element advantage wheel drives every combat decision, and was
+ * previously communicated by hue alone. Roughly 8% of men have a colour-vision
+ * deficiency, so a meaningful share of players could not read the core
+ * mechanic at all.
+ *
+ * Each element now carries a distinct glyph. The coloured dot becomes
+ * decorative (`aria-hidden`) and the glyph carries the accessible name, so a
+ * screen reader announces the element exactly once.
+ */
+export const ELEMENT_GLYPH = Object.freeze({
+  RED: '▲', YELLOW: '◆', PURPLE: '✦',
+  GREEN: '⬢', BLUE: '●', DARK: '☾', LIGHT: '☀',
+});
+
+/**
+ * Build an accessible element badge: colour + glyph + name.
+ *
+ * @param {string} element   Element id, e.g. 'RED'.
+ * @param {object} elements  The catalogue's ELEMENTS map.
+ * @param {object} [options] `{ size, showLabel }`
+ */
+export function elementBadge(element, elements, { size = 10, showLabel = false } = {}) {
+  const def = elements?.[element];
+  if (!def) return el('span');
+  return el('span.el-badge', {}, [
+    el('span.el-dot', {
+      'aria-hidden': 'true',
+      style: {
+        background: def.hex, color: def.hex,
+        width: `${size}px`, height: `${size}px`,
+      },
+    }),
+    el('span.el-glyph', {
+      text: ELEMENT_GLYPH[element] ?? '',
+      'aria-label': `${def.label} element`,
+      style: { color: def.hex, fontSize: `${size + 1}px` },
+    }),
+    showLabel ? el('span.tiny', { text: def.label, style: { color: def.hex } }) : null,
+  ]);
+}

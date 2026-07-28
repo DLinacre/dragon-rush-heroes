@@ -5,7 +5,7 @@
  * banner, mission progress, best team preview and a jump-back-in shortcut.
  */
 
-import { el, mount, num, compact, bar, stars, toast, icon } from '../core/ui.js';
+import { el, mount, num, compact, bar, toast } from '../core/ui.js';
 import { store } from '../core/store.js';
 import { lazyPortrait } from '../core/portrait.js';
 import { api } from '../core/api.js';

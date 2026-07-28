@@ -30,7 +30,7 @@
  */
 
 const { FairRandom } = require('../core/crypto');
-const { CATALOGUE, RARITIES, ARTS, elementMultiplier, STAR_STAT_BONUS } = require('./content');
+const { CATALOGUE, ARTS, elementMultiplier, STAR_STAT_BONUS } = require('./content');
 
 // ------------------------------------------------------------- constants --
 
