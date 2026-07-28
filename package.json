@@ -1,0 +1,30 @@
+{
+  "name": "dragonball-heroes",
+  "version": "1.0.0",
+  "description": "An original anime action-RPG card battler — 464 fighters, real-time Arts combat, provably-fair summons. 100% free, forever: no purchases, no ads, no energy gates.",
+  "private": true,
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node tests/run.js",
+    "smoke": "node tests/smoke.js",
+    "verify": "node tests/run.js && node tests/smoke.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": [
+    "game",
+    "rpg",
+    "card-battler",
+    "gacha",
+    "canvas",
+    "spa",
+    "zero-dependency"
+  ]
+}

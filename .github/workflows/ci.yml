@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20', '22']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No `npm ci` — the project has zero runtime dependencies.
+      - name: Verify zero runtime dependencies
+        run: |
+          deps=$(node -p "Object.keys(require('./package.json').dependencies||{}).length")
+          echo "runtime dependencies: $deps"
+          test "$deps" -eq 0
+
+      - name: Syntax check every source file
+        run: |
+          for f in $(find server tests -name '*.js'); do node --check "$f"; done
+          for f in $(find public/app -name '*.js'); do node --input-type=module --check < "$f"; done
+
+      - name: Unit + integration tests
+        run: node tests/run.js
+
+      - name: Smoke test
+        run: node tests/smoke.js
+
+  e2e:
+    name: Browser end-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Puppeteer (test-only dependency)
+        run: npm install --no-save puppeteer
+
+      - name: Run end-to-end suite
+        run: |
+          node -e "
+            const p = require('puppeteer');
+            require('fs').writeFileSync('/tmp/chrome-path.txt', p.executablePath());
+          "
+          node tests/e2e.js
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: .shots/
+          if-no-files-found: ignore

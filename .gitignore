@@ -1,0 +1,13 @@
+# Runtime data (snapshots + write-ahead log)
+.data/
+.data-*/
+
+# Test artefacts
+.shots/
+
+# Dependencies (there are none at runtime, but tooling may add some)
+node_modules/
+
+# Environment
+.env
+.env.*

@@ -1,0 +1,11 @@
+.git
+.github
+.data
+.data-*
+.shots
+docs
+tests
+node_modules
+*.md
+Dockerfile
+.dockerignore
