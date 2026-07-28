@@ -16,7 +16,7 @@ const RARITY_ORDER = { HERO: 1, EXTREME: 2, SPARKING: 3, LEGENDS: 4, ULTRA: 5 };
 /** A single card in the collection grid. */
 function fighterCard(entry, onClick, { selected = false, dim = false } = {}) {
   const canvas = el('canvas');
-  lazyPortrait(canvas, entry.art);
+  lazyPortrait(canvas, entry.art, entry.title);
 
   const elementColour = store.get('catalogue')?.elements?.[entry.element]?.hex ?? '#fff';
 
@@ -48,6 +48,8 @@ function openDetail(entry, refresh) {
   const catalogue = store.get('catalogue');
   const def = catalogue.byId.get(entry.fighterId);
   const portrait = renderPortrait(entry.art, 300);
+  portrait.setAttribute('role', 'img');
+  portrait.setAttribute('aria-label', `Full portrait of ${entry.title}`);
   portrait.style.width = '100%';
   portrait.style.height = 'auto';
   portrait.style.borderRadius = 'var(--r-md)';
@@ -278,32 +280,40 @@ export function renderRoster(host, navigate) {
     mount(grid, ...list.map((entry) => fighterCard(entry, (e) => openDetail(e, draw))));
   }
 
+  // A placeholder is NOT an accessible name — screen readers may ignore it and
+  // it disappears on input. An explicit aria-label is required (WCAG 4.1.2).
   const searchInput = el('input.input', {
-    type: 'search', placeholder: 'Search fighters…',
+    type: 'search',
+    placeholder: 'Search fighters…',
+    'aria-label': 'Search your fighters by name',
     style: { maxWidth: '240px' },
     onInput: debounce((e) => { search = e.target.value; draw(); }, 160),
   });
 
-  const select = (options, onChange) =>
+  const select = (options, onChange, label) =>
     el('select.input', {
+      'aria-label': label,
       style: { maxWidth: '150px' },
       onChange: (e) => { onChange(e.target.value); draw(); },
-    }, options.map(([value, label]) => el('option', { value, text: label })));
+    }, options.map(([value, text]) => el('option', { value, text })));
 
   const controls = el('div.row.wrap', { style: { gap: '8px', marginBottom: '16px' } }, [
     searchInput,
     select(
       [['ALL', 'All rarities'], ...Object.keys(RARITY_ORDER).reverse().map((r) => [r, r])],
-      (v) => { rarityFilter = v; }
+      (v) => { rarityFilter = v; },
+      'Filter fighters by rarity'
     ),
     select(
       [['ALL', 'All elements'], ...Object.keys(catalogue.elements).map((e) => [e, catalogue.elements[e].label])],
-      (v) => { elementFilter = v; }
+      (v) => { elementFilter = v; },
+      'Filter fighters by element'
     ),
     select(
       [['power', 'Sort: Power'], ['rarity', 'Sort: Rarity'], ['level', 'Sort: Level'],
        ['stars', 'Sort: Stars'], ['name', 'Sort: Name']],
-      (v) => { sortBy = v; }
+      (v) => { sortBy = v; },
+      'Sort fighters'
     ),
     el('div.spacer'),
     countLabel,

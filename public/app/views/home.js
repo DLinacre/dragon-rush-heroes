@@ -33,7 +33,7 @@ function statTile(label, value, accent) {
 /** Compact fighter chip used in the team preview. */
 function fighterChip(entry) {
   const canvas = el('canvas', { width: 64, height: 64 });
-  lazyPortrait(canvas, entry.art);
+  lazyPortrait(canvas, entry.art, entry.title);
   return el('div', {
     style: {
       display: 'flex', alignItems: 'center', gap: '10px',

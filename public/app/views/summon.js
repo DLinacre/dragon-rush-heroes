@@ -58,6 +58,8 @@ function playReveal(results) {
     const showGrid = () => {
       const cards = results.map((result, index) => {
         const portrait = renderPortrait(result.art, 190);
+        portrait.setAttribute('role', 'img');
+        portrait.setAttribute('aria-label', `${result.title}, ${result.rarity} rarity${result.isNew ? ', new' : ''}`);
         const holder = el('div', {
           style: {
             width: '100%', aspectRatio: '3/4', borderRadius: '10px',
@@ -242,6 +244,8 @@ export function renderSummon(host, navigate) {
       },
     }, featured.map((f) => {
       const portrait = renderPortrait(f.art, 150);
+      portrait.setAttribute('role', 'img');
+      portrait.setAttribute('aria-label', `Featured fighter: ${f.title}`);
       portrait.style.width = '100%';
       portrait.style.height = '100%';
       return el('div', {}, [

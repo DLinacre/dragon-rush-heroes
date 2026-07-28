@@ -656,7 +656,11 @@ export function renderPortrait(art, size = 220) {
  * @param {HTMLCanvasElement} target
  * @param {object} art
  */
-export function paintPortrait(target, art) {
+export function paintPortrait(target, art, label) {
+  if (!target.hasAttribute('role')) target.setAttribute('role', 'img');
+  if (!target.hasAttribute('aria-label')) {
+    target.setAttribute('aria-label', label ? `Portrait of ${label}` : 'Fighter portrait');
+  }
   const rect = target.getBoundingClientRect();
   const size = Math.max(48, Math.round(Math.max(rect.width, rect.height) || 120));
   const source = renderPortrait(art, size);
@@ -688,10 +692,23 @@ const observer = new IntersectionObserver(
   { rootMargin: '180px' }
 );
 
-/** Register a canvas for lazy portrait painting. */
-export function lazyPortrait(canvas, art) {
+/**
+ * Register a canvas for lazy portrait painting.
+ *
+ * Also attaches the accessibility metadata. Canvas pixels are completely
+ * opaque to assistive technology, so without `role="img"` + `aria-label` a
+ * screen-reader user hears nothing at all for a portrait (WCAG 1.1.1
+ * Non-text Content). Callers pass the fighter's display name.
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {object} art   Fighter art descriptor.
+ * @param {string} [label] Accessible name, e.g. "Ascendant Kalen".
+ */
+export function lazyPortrait(canvas, art, label) {
   canvas.__art = art;
   canvas.__painted = false;
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', label ? `Portrait of ${label}` : 'Fighter portrait');
   observer.observe(canvas);
 }
 

@@ -148,8 +148,13 @@ export function renderBattle(host, navigate) {
         const fighterId = team[i];
         const entry = roster.find((r) => r.fighterId === fighterId);
         const canvas = el('canvas', { style: { width: '100%', height: '100%' } });
-        if (entry) lazyPortrait(canvas, entry.art);
+        if (entry) lazyPortrait(canvas, entry.art, entry.title);
+        // The slot's only child is a canvas, which contributes no accessible
+        // name — state it explicitly (WCAG 4.1.2 Name, Role, Value).
         return el('button', {
+          'aria-label': entry
+            ? `Team slot ${i + 1}: ${entry.title}. Activate to change fighter.`
+            : `Team slot ${i + 1}: empty. Activate to choose a fighter.`,
           style: {
             width: '78px', height: '96px', borderRadius: 'var(--r-md)',
             border: `1.5px solid ${entry ? 'var(--gold)' : 'var(--line)'}`,
@@ -157,7 +162,7 @@ export function renderBattle(host, navigate) {
             position: 'relative', cursor: 'pointer', flex: '0 0 auto',
           },
           onClick: () => pickFighter(i),
-        }, entry ? [canvas] : [el('span', { text: '+', style: { fontSize: '24px', color: 'var(--ink-dim)' } })]);
+        }, entry ? [canvas] : [el('span', { text: '+', 'aria-hidden': 'true', style: { fontSize: '24px', color: 'var(--ink-dim)' } })]);
       })
     );
 
@@ -167,10 +172,14 @@ export function renderBattle(host, navigate) {
       const gridEl = el('div.grid.grid-auto', { style: { maxHeight: '52vh', overflowY: 'auto' } },
         list.map((entry) => {
           const canvas = el('canvas');
-          lazyPortrait(canvas, entry.art);
+          lazyPortrait(canvas, entry.art, entry.title);
           const inTeam = team.includes(entry.fighterId) && team[slot] !== entry.fighterId;
           return el('div.fcard', {
             class: inTeam ? 'dim' : '',
+            role: 'button',
+            tabindex: '0',
+            'aria-label': `${entry.title}, ${entry.rarity}, level ${entry.level}` +
+              (inTeam ? ' (already on the team)' : ''),
             onClick: () => {
               if (inTeam) { toast('Already on the team.', 'err'); return; }
               team[slot] = entry.fighterId;
@@ -281,7 +290,7 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
   let closed = false;
 
   // ------------------------------------------------------------- scaffold --
-  const canvas = el('canvas.arena-canvas');
+  const canvas = el('canvas.arena-canvas', { 'aria-hidden': 'true' });
   const flash = el('div.arena-flash');
   const speedlines = el('div.speedlines');
   const stageLayer = el('div.stage');
@@ -301,7 +310,9 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
    * VFX plays against, positioned to match the engine's ANCHOR coordinates.
    */
   function makeSprite(side) {
-    const spriteCanvas = el('canvas');
+    // Decorative duplicate of the HUD portrait — hidden from assistive tech so
+    // screen-reader users do not hear the same fighter announced twice.
+    const spriteCanvas = el('canvas', { 'aria-hidden': 'true' });
     const inner = el('div.sprite-inner', {}, [spriteCanvas]);
     const node = el(`div.sprite${side === 'enemy' ? '.enemy' : ''}`, {
       style: { left: `${ANCHOR[side].x * 100}%`, top: `${ANCHOR[side].y * 100}%` },
@@ -346,7 +357,10 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
   const portraits = { player: null, enemy: null };
 
   function combatantBlock(side) {
-    const canvasEl = el('canvas');
+    const canvasEl = el('canvas', {
+      role: 'img',
+      'aria-label': side === 'player' ? 'Your active fighter' : 'Enemy active fighter',
+    });
     const portrait = el('div.portrait', {}, [canvasEl]);
     portraits[side] = { wrap: portrait, canvas: canvasEl, fighterId: null };
 
@@ -534,11 +548,13 @@ export function openArena(battleId, stage, initialState, initialEvents, navigate
       const isActive = slot === p.active;
       const canSwitch = member.alive && !isActive && pa.substitution === 0 && !locked;
       const benchCanvas = el('canvas');
-      lazyPortrait(benchCanvas, catalogue.byId.get(member.fighterId).art);
+      lazyPortrait(benchCanvas, catalogue.byId.get(member.fighterId).art, member.name);
       return el('button.bench-slot', {
         class: isActive ? 'active' : '',
         disabled: !canSwitch,
         title: member.name,
+        'aria-label': `${member.name}, ${Math.round((member.hp / member.maxHp) * 100)}% health` +
+          (isActive ? ' (active)' : member.alive ? '. Activate to switch in.' : ' (defeated)'),
         onClick: () => act({ action: 'switch', slot }),
       }, [
         benchCanvas,

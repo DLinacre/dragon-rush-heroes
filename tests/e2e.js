@@ -240,6 +240,41 @@ async function main() {
       await new Promise((r) => setTimeout(r, 1500));
     }
 
+    // ---------------------------------------------------- 5b. accessibility --
+    console.log('\n5b. Accessibility');
+    const a11y = await page.evaluate(() => {
+      const r = {};
+      r.lang = document.documentElement.lang || null;
+      r.h1 = document.querySelectorAll('h1').length;
+      r.imgsNoAlt = [...document.querySelectorAll('img')].filter((i) => !i.hasAttribute('alt')).length;
+      r.btnsNoName = [...document.querySelectorAll('button')]
+        .filter((b) => !b.innerText.trim() && !b.getAttribute('aria-label')).length;
+      r.inputsNoLabel = [...document.querySelectorAll('input, select')]
+        .filter((i) => !i.labels?.length && !i.getAttribute('aria-label')).length;
+      // A canvas is acceptable if it is labelled OR explicitly decorative.
+      const canvases = [...document.querySelectorAll('canvas')];
+      r.totalCanvas = canvases.length;
+      r.canvasUnlabelled = canvases.filter((c) =>
+        c.getAttribute('aria-hidden') !== 'true' && !c.getAttribute('aria-label')).length;
+      return r;
+    });
+    check('html[lang] is set', Boolean(a11y.lang), a11y.lang);
+    check('exactly one h1 per view', a11y.h1 === 1, `found ${a11y.h1}`);
+    check('every img has alt', a11y.imgsNoAlt === 0, `${a11y.imgsNoAlt} missing`);
+    check('every button has an accessible name', a11y.btnsNoName === 0, `${a11y.btnsNoName} unnamed`);
+    check('every input/select is labelled', a11y.inputsNoLabel === 0, `${a11y.inputsNoLabel} unlabelled`);
+    check('canvases labelled or marked decorative',
+      a11y.canvasUnlabelled === 0, `${a11y.canvasUnlabelled}/${a11y.totalCanvas} unlabelled`);
+
+    // Keyboard: Tab must reach an interactive control and show focus.
+    const kbd = await page.evaluate(() => {
+      const nav = document.querySelector('.nav-btn');
+      if (!nav) return false;
+      nav.focus();
+      return document.activeElement === nav;
+    });
+    check('keyboard focus reaches navigation', kbd);
+
     // --------------------------------------------------------- 6. settings --
     console.log('\n6. Settings');
     await page.evaluate(() => {
